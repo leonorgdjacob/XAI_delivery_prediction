@@ -7,38 +7,39 @@ from pathlib import Path
 import numpy as np
 import cv2
 
-# Configuração do dispositivo
+# set device
 device = "cuda" if torch.cuda.is_available() else "cpu"
-print(f"Usando dispositivo: {device}")
+print(f"Using device: {device}")
 
-# Caminho para os dados
+# data path
 data_path = Path("C:/Users/anale/OneDrive/Documentos/Universidade/5º ANO/TESE/image-dataset")
-image_path = data_path / "dataset_images_cv_3/Head_"
+image_path = data_path / "dataset_images_cv_3/Abdomen_"
 test_dir = image_path / "test"
 
-# Transformação para teste (escala de cinza e resize)
+
+# Create testing transform (no data augmentation)
 test_transform = transforms.Compose([
     transforms.functional.rgb_to_grayscale,  # Converter para escala de cinza
     transforms.Resize((80, 80)),
     transforms.ToTensor()
 ])
 
-# Dataset e DataLoader de teste
+# test Dataset e DataLoader 
 test_data_simple = datasets.ImageFolder(root=test_dir, transform=test_transform)
 test_dataloader_simple = DataLoader(test_data_simple, batch_size=1, shuffle=False)  #le as imagens 1 a 1 -> batchsize
 class_names = test_data_simple.classes
 print(class_names)
 
-# Carregar o modelo ResNet18 com pesos treinados 
+# load ResNet18 with trained weights 
 model = models.resnet18(weights='DEFAULT')
 model.conv1 = nn.Conv2d(1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
 num_ftrs = model.fc.in_features
 model.fc = nn.Linear(num_ftrs, len(class_names))  # Binario - vaginal e cesariana
-model.load_state_dict(torch.load('repositorio-resnet/resnet18-3splits-head/cv3/best-model.pth', map_location=torch.device('cpu')))
+model.load_state_dict(torch.load('repositorio-resnet/resnet18-3splits-abdomen/cv3/best-model.pth', map_location=torch.device('cpu')))
 model.to(device)
 model.eval()
 
-# Função Grad-CAM
+# Grad-CAM function
 class GradCAM:
     def __init__(self, model, target_layer):
         self.model = model
@@ -47,29 +48,32 @@ class GradCAM:
         self.activations = None
         self.hook_layers()
 
-    def hook_layers(self):
+
+    # Capturar as ativações da camada alvo durante o forward pass
+    def hook_layers(self): 
         def backward_hook(module, grad_input, grad_output):
             self.gradients = grad_output[0]
 
         def forward_hook(module, input, output):
             self.activations = output
 
-        # Usando register_full_backward_hook
+        # use register_full_backward_hook
         self.target_layer.register_forward_hook(forward_hook)
         self.target_layer.register_full_backward_hook(backward_hook)
 
+    
     def generate(self, input_tensor, class_index=None):
-        # Forward
-        output = self.model(input_tensor)
+        # Forward - layers applied to process the image and get the output
+        output = self.model(input_tensor) 
 
-        # Backward para a classe-alvo
+        # Backward to target class
         if class_index is None:
-            class_index = torch.argmax(output, dim=1).item()
-        self.model.zero_grad()
+            class_index = torch.argmax(output, dim=1).item() #se class_index não for fornecido, a classe com a maior probabilidade é selecionada
+        self.model.zero_grad() #Zera os gradientes acumulados de execuções anteriores
         output[0, class_index].backward()
 
         # Grad-CAM
-        weights = torch.mean(self.gradients, dim=(2, 3))  # Peso global
+        weights = torch.mean(self.gradients, dim=(2, 3))  # global weight
         cam = torch.zeros(self.activations.shape[2:], dtype=torch.float32).to(device)
         for i, w in enumerate(weights[0]):
             cam += w * self.activations[0, i]
@@ -110,10 +114,12 @@ def visualize_grad_cam(image, cam, predicted_class_idx, image_name):
 # Testar Grad-CAM em um exemplo do DataLoader
 for images, labels in test_dataloader_simple:
 
-    image_path = test_dataloader_simple.dataset.imgs[0][1]  # Obtém o caminho da primeira imagem
+    image_path = test_dataloader_simple.dataset.imgs[0][0]  # [0] caminho da primeira imagem; [0]cesariana, [1] vaginal
     image_name = Path(image_path).name  # para saber qual e a imagem
 
     images, labels = images.to(device), labels.to(device)
     cam, predicted_class_idx = grad_cam.generate(images, class_index=labels.item())
-    visualize_grad_cam(images[1].cpu(), cam, predicted_class_idx, image_name)
-    break
+    visualize_grad_cam(images[0].cpu(), cam, predicted_class_idx, image_name)
+    break  #para ser apenas uma imagem
+
+

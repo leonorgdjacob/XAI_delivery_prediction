@@ -9,7 +9,7 @@ from pathlib import Path
 
 # Configuração do dispositivo
 device = "cuda" if torch.cuda.is_available() else "cpu"
-print(f"Usando dispositivo: {device}")
+print(f"Dispositivo: {device}")
 
 # Caminho para os dados
 data_path = Path("C:/Users/anale/OneDrive/Documentos/Universidade/5º ANO/TESE/image-dataset")
