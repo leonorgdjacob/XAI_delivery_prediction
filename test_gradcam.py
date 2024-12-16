@@ -29,7 +29,7 @@ test_dataloader_simple = DataLoader(test_data_simple, batch_size=1, shuffle=Fals
 class_names = test_data_simple.classes
 print(class_names)
 
-# Carregar o modelo ResNet18
+# Carregar o modelo ResNet18 com pesos treinados 
 model = models.resnet18(weights='DEFAULT')
 model.conv1 = nn.Conv2d(1, 64, kernel_size=(7, 7), stride=(2, 2), padding=(3, 3), bias=False)
 num_ftrs = model.fc.in_features
