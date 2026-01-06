@@ -1,4 +1,4 @@
-# Explainability of Models Applied in Obstetric Medical Imaging
+# Explainability of Models Applied to Obstetric Medical Imaging
 
 [![SSRN](https://img.shields.io/badge/SSRN-Preprint-2f6fed.svg)](https://dx.doi.org/10.2139/ssrn.5477683)
 
