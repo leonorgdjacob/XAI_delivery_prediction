@@ -1,5 +1,7 @@
 # Explainability of Models Applied in Obstetric Medical Imaging
 
+[![SSRN](https://img.shields.io/badge/SSRN-Preprint-2f6fed.svg)](https://dx.doi.org/10.2139/ssrn.5477683)
+
 This project explores the implementation of explainable artificial intelligence (XAI) methods to image-based Machine Learning models previously developed to predict the mode of delivery  — vaginal delivery or cesarean section — after induction of labor (IOL). The image data used for model training corresponded to third trimester ultrasound images from three fetal anatomical views (abdomen, head, and femur)
 Available model architectures included CNN-based ResNet-18 and DenseNet-169, and Transformer-based MedViT. The three visual XAI techniques employed were backpropagation-based: Grad-CAM, Grad-CAM++, and HiRes-CAM. 
 
