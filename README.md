@@ -15,7 +15,7 @@ The data is not made publicly available for privacy and ethical reasons.
 
 ## Credits
 This work builds upon and benefits from code made publicly available by the following repositories:
-* ***pytorch-grad-cam* by Jacob Gildenblat** - for explainability methods employment (pytorch-grad-cam folder)
-* ***MedViT* by Omid Nejati** - for MedViT model inference (MedViT folder)
+* [*pytorch-grad-cam* by Jacob Gildenblat](https://github.com/jacobgil/pytorch-grad-cam/tree/master) - for explainability methods employment (pytorch-grad-cam folder)
+* [*MedViT* by Omid Nejati](https://github.com/Omid-Nejati/MedViT?tab=readme-ov-file) - for MedViT model inference (MedViT folder)
 
 
